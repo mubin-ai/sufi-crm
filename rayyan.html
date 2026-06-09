@@ -399,7 +399,7 @@ option { background: var(--bg2); }
     </div>
 
     <!-- Agent selector -->
-    <div class="agent-selector" id="agent-selector">
+    <div class="agent-selector" id="agent-selector" style="display:none">
       <div class="agent-btn" style="--agent-color:#3b82f6" data-agent="Shabbir" onclick="selectAgent('Shabbir','#3b82f6')">
         <div class="agent-btn-name">Shabbir</div>
         <div class="agent-btn-count" id="count-Shabbir">— clients</div>
@@ -637,10 +637,10 @@ option { background: var(--bg2); }
 // ── AGENT LOCK: This page is for Rayyan only ──────────
 const LOCKED_AGENT = 'Rayyan';
 const LOCKED_COLOR = '#059669';
-// ── Auto-detect agent from URL parameter (?agent=Rayyan)
+// ── LOCKED: This page is for Rayyan only ──────────────
 const URL_PARAMS  = new URLSearchParams(window.location.search);
-const URL_AGENT   = URL_PARAMS.get('agent') || '';
-const URL_LOCKED  = !!URL_AGENT; // if agent in URL, lock to that agent
+const URL_AGENT   = 'Rayyan'; // LOCKED — do not change
+const URL_LOCKED  = true;           // always locked
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw_AMlH-V8QTUc5peeCTKfxgYx1gyv10y4wP6JLuZfcPe5bPPao1zD278B1V4brfLKb2w/exec';
 
 const STATE = {
