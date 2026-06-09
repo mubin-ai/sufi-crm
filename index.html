@@ -1082,74 +1082,66 @@ async function syncData() {
   const icon = document.getElementById('sync-icon');
   icon.classList.add('spinning');
   document.getElementById('last-sync-text').textContent = 'Syncing…';
-
-  try {
-    const url = `${STATE.webAppUrl}?action=getData&agent=${encodeURIComponent(STATE.agent||'')}`;
-    // Use no-cors with JSONP callback to bypass CORS restriction
-    const res = await fetch(url, {
-      method: 'GET',
-      mode: 'cors',
-      redirect: 'follow',
-    });
-    const text = await res.text();
-    let data;
-    try { data = JSON.parse(text); } catch(e) { throw new Error('Invalid response from server'); }
-
-    if (data.error) throw new Error(data.error);
-    if (data.clients)     STATE.clients     = data.clients;
-    if (data.quotes)      STATE.quotes      = data.quotes;
-    if (data.receivables) STATE.receivables = data.receivables;
-    if (data.items)       STATE.items       = data.items;
-
-    STATE.lastSync = new Date().toISOString();
-    saveState();
-    populateDataLists();
-    renderPage(STATE.currentPage);
-    document.getElementById('last-sync-text').textContent = 'Synced: ' + new Date().toLocaleTimeString('en-IN');
-    showToast('✅ Data synced from Google Sheets!');
-  } catch(err) {
-    // If CORS fails, try JSONP method
-    if (err.message.includes('fetch') || err.message.includes('CORS') || err.message.includes('Failed')) {
-      syncViaJsonp();
-      return;
-    }
-    document.getElementById('last-sync-text').textContent = 'Sync failed — check URL';
-    showToast('❌ Sync failed: ' + err.message);
-  }
-  icon.classList.remove('spinning');
+  syncViaJsonp();
 }
 
 function syncViaJsonp() {
-  const callbackName = 'sufiCrmCallback_' + Date.now();
-  const url = `${STATE.webAppUrl}?action=getData&agent=${encodeURIComponent(STATE.agent||'')}&callback=${callbackName}`;
   const icon = document.getElementById('sync-icon');
+  const callbackName = 'sufiCB' + Date.now();
+  // Build the exec URL (not the /dev URL)
+  let baseUrl = STATE.webAppUrl.split('?')[0];
+  if (!baseUrl.endsWith('/exec')) {
+    baseUrl = baseUrl.replace(/\/dev$/, '/exec');
+  }
+  const url = baseUrl + '?action=getData&agent=' + encodeURIComponent(STATE.agent||'') + '&callback=' + callbackName;
+
+  let done = false;
 
   window[callbackName] = function(data) {
-    document.getElementById('last-sync-text').textContent = 'Processing...';
-    if (data.clients)     STATE.clients     = data.clients;
-    if (data.quotes)      STATE.quotes      = data.quotes;
-    if (data.receivables) STATE.receivables = data.receivables;
-    if (data.items)       STATE.items       = data.items;
-    STATE.lastSync = new Date().toISOString();
-    saveState();
-    populateDataLists();
-    renderPage(STATE.currentPage);
-    document.getElementById('last-sync-text').textContent = 'Synced: ' + new Date().toLocaleTimeString('en-IN');
-    showToast('✅ Synced from Google Sheets!');
+    done = true;
+    if (data && data.clients !== undefined) {
+      STATE.clients     = data.clients     || [];
+      STATE.quotes      = data.quotes      || [];
+      STATE.receivables = data.receivables || [];
+      STATE.items       = data.items       || [];
+      STATE.lastSync    = new Date().toISOString();
+      saveState();
+      populateDataLists();
+      renderPage(STATE.currentPage);
+      document.getElementById('last-sync-text').textContent = 'Synced: ' + new Date().toLocaleTimeString('en-IN');
+      showToast('✅ Synced! ' + STATE.clients.length + ' clients loaded.');
+    } else {
+      document.getElementById('last-sync-text').textContent = 'Sync failed';
+      showToast('❌ No data returned. Redeploy Web App as new version.');
+    }
     icon.classList.remove('spinning');
     delete window[callbackName];
-    script.remove();
+    if (script.parentNode) script.remove();
   };
 
   const script = document.createElement('script');
   script.src = url;
-  script.onerror = () => {
-    showToast('❌ Connection failed. Check Web App URL.');
+  script.onerror = function() {
+    if (done) return;
+    done = true;
     icon.classList.remove('spinning');
     document.getElementById('last-sync-text').textContent = 'Sync failed';
+    showToast('❌ Failed. Make sure Web App is deployed with "Anyone" access.');
     delete window[callbackName];
-    script.remove();
+    if (script.parentNode) script.remove();
   };
+  // Timeout after 15 seconds
+  setTimeout(() => {
+    if (!done) {
+      done = true;
+      icon.classList.remove('spinning');
+      document.getElementById('last-sync-text').textContent = 'Sync timed out';
+      showToast('❌ Timed out. Check Apps Script deployment.');
+      delete window[callbackName];
+      if (script.parentNode) script.remove();
+    }
+  }, 15000);
+
   document.head.appendChild(script);
 }
 
