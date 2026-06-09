@@ -636,7 +636,7 @@ option { background: var(--bg2); }
 // ── Auto-detect agent from URL parameter (?agent=Rayyan)
 const URL_PARAMS  = new URLSearchParams(window.location.search);
 const URL_AGENT   = 'Mubin'; // LOCKED
-const URL_LOCKED  = true; // LOCKED to Mubin
+const URL_LOCKED  = true;
 const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw_AMlH-V8QTUc5peeCTKfxgYx1gyv10y4wP6JLuZfcPe5bPPao1zD278B1V4brfLKb2w/exec';
 
 const STATE = {
@@ -699,7 +699,7 @@ function saveState() {
   localStorage.setItem('sufi_quotes', JSON.stringify(STATE.quotes));
   localStorage.setItem('sufi_receivables', JSON.stringify(STATE.receivables));
   localStorage.setItem('sufi_items', JSON.stringify(STATE.items));
-  if (STATE.webAppUrl) localStorage.setItem('sufi_webapp_url', STATE.webAppUrl);
+  // webAppUrl is embedded — do not save to localStorage
 }
 
 // ── NAVIGATION ─────────────────────────────────────────────
@@ -1183,12 +1183,10 @@ function showConnectModal() {
 }
 
 function saveConnectUrl() {
-  // URL is now embedded — just sync directly
   STATE.webAppUrl = WEB_APP_URL;
   closeModal('modal-connect');
   document.getElementById('home-setup').style.display = 'none';
   document.getElementById('home-dashboard').style.display = 'block';
-  showToast('✅ Connecting…');
   syncData();
 }
 
