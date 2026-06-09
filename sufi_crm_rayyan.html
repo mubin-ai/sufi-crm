@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#059669">
+<title>Sufi CRM — Rayyan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0f1923;
+  --bg2:      #162030;
+  --bg3:      #1e2d3d;
+  --border:   #243447;
+  --border2:  #2e4057;
+  --text:     #e8f0f8;
+  --text2:    #8ba3bc;
+  --text3:    #4a6480;
+  --accent:   #3b82f6;
+  --accent2:  #1d4ed8;
+  --green:    #10b981;
+  --red:      #ef4444;
+  --amber:    #f59e0b;
+  --purple:   #8b5cf6;
+  --orange:   #f97316;
+  --card:     #162030;
+  --r:        14px;
+  --r2:       10px;
+  --shadow:   0 4px 24px rgba(0,0,0,0.4);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-bottom: 80px;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(15,25,35,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.topbar-left { display: flex; align-items: center; gap: 10px; }
+.logo-mark {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 14px; color: white; letter-spacing: -0.5px;
+}
+.topbar-title { font-size: 16px; font-weight: 600; color: var(--text); }
+.topbar-sub { font-size: 11px; color: var(--text2); margin-top: 1px; }
+.agent-badge {
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 20px; padding: 4px 12px;
+  font-size: 12px; font-weight: 500; color: var(--text2);
+  cursor: pointer;
+}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(15,25,35,0.96);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  display: flex; padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; gap: 3px; padding: 6px 0;
+  cursor: pointer; border: none; background: none;
+  color: var(--text3); transition: color 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.nav-item.active { color: var(--accent); }
+.nav-item svg { width: 22px; height: 22px; stroke-width: 1.8; }
+.nav-label { font-size: 10px; font-weight: 500; }
+
+/* ── PAGES ── */
+.page { display: none; padding: 16px; animation: fadeUp 0.25s ease; }
+.page.active { display: block; }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── KPI GRID ── */
+.kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.kpi-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 14px;
+  position: relative; overflow: hidden;
+}
+.kpi-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--accent-color, var(--accent));
+}
+.kpi-label { font-size: 11px; color: var(--text2); font-weight: 500; margin-bottom: 6px; }
+.kpi-value { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; font-family: 'DM Mono', monospace; }
+.kpi-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+/* ── SECTION HEADER ── */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px; margin-top: 20px;
+}
+.section-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.6px; }
+.section-action { font-size: 13px; color: var(--accent); font-weight: 500; cursor: pointer; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 14px; margin-bottom: 10px;
+  cursor: pointer; transition: border-color 0.2s, transform 0.1s;
+  position: relative;
+}
+.card:active { transform: scale(0.98); border-color: var(--border2); }
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+.card-name { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.3; }
+.card-company { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.card-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.tag {
+  font-size: 11px; font-weight: 500; padding: 3px 8px;
+  border-radius: 20px; border: 1px solid;
+}
+.tag-green  { color: var(--green);  border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.1); }
+.tag-red    { color: var(--red);    border-color: rgba(239,68,68,0.3);  background: rgba(239,68,68,0.1); }
+.tag-amber  { color: var(--amber);  border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.1); }
+.tag-blue   { color: var(--accent); border-color: rgba(59,130,246,0.3); background: rgba(59,130,246,0.1); }
+.tag-purple { color: var(--purple); border-color: rgba(139,92,246,0.3); background: rgba(139,92,246,0.1); }
+.tag-gray   { color: var(--text2);  border-color: var(--border2);       background: var(--bg3); }
+
+.card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.card-date { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
+.card-amount { font-size: 14px; font-weight: 700; color: var(--text); font-family: 'DM Mono', monospace; }
+
+/* ── SEARCH BAR ── */
+.search-bar {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 10px 14px; margin-bottom: 14px;
+}
+.search-bar svg { width: 18px; height: 18px; color: var(--text3); flex-shrink: 0; }
+.search-bar input {
+  flex: 1; background: none; border: none; outline: none;
+  font-size: 14px; color: var(--text); font-family: 'DM Sans', sans-serif;
+}
+.search-bar input::placeholder { color: var(--text3); }
+
+/* ── FAB ── */
+.fab {
+  position: fixed; bottom: 90px; right: 16px; z-index: 99;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+  border: none; color: white; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(59,130,246,0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.fab:active { transform: scale(0.92); }
+.fab svg { width: 22px; height: 22px; }
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+  align-items: flex-end; justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--r) var(--r) 0 0;
+  width: 100%; max-height: 92vh; overflow-y: auto;
+  padding: 20px 16px max(20px, env(safe-area-inset-bottom));
+  animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+.modal-handle {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: var(--border2); margin: 0 auto 20px;
+}
+.modal-title { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.modal-sub { font-size: 13px; color: var(--text2); margin-bottom: 20px; }
+
+/* ── FORM ── */
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; display: block; }
+.form-input, .form-select, .form-textarea {
+  width: 100%; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 11px 14px;
+  font-size: 14px; color: var(--text); font-family: 'DM Sans', sans-serif;
+  outline: none; transition: border-color 0.2s;
+  -webkit-appearance: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--accent); }
+.form-textarea { min-height: 80px; resize: vertical; }
+.form-select { cursor: pointer; }
+option { background: var(--bg2); }
+
+.btn-primary {
+  width: 100%; padding: 14px; border-radius: var(--r);
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none; color: white; font-size: 15px; font-weight: 600;
+  font-family: 'DM Sans', sans-serif; cursor: pointer;
+  margin-top: 8px; transition: opacity 0.2s, transform 0.1s;
+}
+.btn-primary:active { opacity: 0.85; transform: scale(0.98); }
+.btn-secondary {
+  width: 100%; padding: 13px; border-radius: var(--r);
+  background: none; border: 1px solid var(--border2);
+  color: var(--text2); font-size: 15px; font-weight: 500;
+  font-family: 'DM Sans', sans-serif; cursor: pointer; margin-top: 8px;
+}
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ── DETAIL VIEW ── */
+.detail-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
+}
+.back-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: var(--bg3); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+}
+.back-btn svg { width: 18px; height: 18px; color: var(--text2); }
+
+.detail-section {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 14px; margin-bottom: 12px;
+}
+.detail-section-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+.detail-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.detail-row:last-child { border-bottom: none; padding-bottom: 0; }
+.detail-key { font-size: 13px; color: var(--text2); }
+.detail-val { font-size: 13px; color: var(--text); font-weight: 500; text-align: right; max-width: 60%; }
+
+/* ── SETUP SCREEN ── */
+.setup-screen {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 80vh; text-align: center; padding: 20px;
+}
+.setup-icon { font-size: 48px; margin-bottom: 16px; }
+.setup-title { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+.setup-sub { font-size: 14px; color: var(--text2); margin-bottom: 28px; line-height: 1.6; }
+.setup-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px; width: 100%; text-align: left; margin-bottom: 10px;
+}
+.setup-step { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.setup-desc { font-size: 13px; color: var(--text2); }
+
+/* ── STATUS BAR ── */
+.status-bar {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--r2); padding: 10px 14px;
+  display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+  font-size: 13px; color: var(--text2);
+}
+.status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.dot-green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.dot-red   { background: var(--red); }
+.dot-amber { background: var(--amber); }
+
+/* ── AGENT SELECTOR ── */
+.agent-selector {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;
+}
+.agent-btn {
+  background: var(--bg3); border: 2px solid var(--border);
+  border-radius: var(--r); padding: 14px; cursor: pointer;
+  text-align: left; transition: all 0.2s; position: relative; overflow: hidden;
+}
+.agent-btn.selected { border-color: var(--agent-color, var(--accent)); }
+.agent-btn.selected::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: var(--agent-color, var(--accent));
+}
+.agent-btn-name { font-size: 15px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.agent-btn-count { font-size: 12px; color: var(--text2); }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center; padding: 40px 20px; color: var(--text3);
+}
+.empty-state-icon { font-size: 36px; margin-bottom: 10px; }
+.empty-state-text { font-size: 14px; }
+
+/* ── RECEIVABLE ROW ── */
+.rec-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 14px; margin-bottom: 8px;
+}
+.rec-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+.rec-name { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; margin-right: 10px; }
+.rec-amount { font-size: 16px; font-weight: 700; font-family: 'DM Mono', monospace; }
+.rec-amount.critical { color: var(--red); }
+.rec-amount.high     { color: var(--amber); }
+.rec-amount.medium   { color: var(--accent); }
+.rec-amount.low      { color: var(--green); }
+.rec-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--text3); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 90px; left: 16px; right: 16px; z-index: 300;
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--r); padding: 12px 16px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 14px; color: var(--text);
+  transform: translateY(20px); opacity: 0;
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  pointer-events: none;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ── ITEMS ── */
+.item-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 12px 14px; margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer; transition: border-color 0.2s;
+}
+.item-card:active { border-color: var(--accent); }
+.item-name { font-size: 13px; font-weight: 500; color: var(--text); flex: 1; margin-right: 10px; }
+.item-unit { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
+.item-copy { font-size: 11px; color: var(--accent); padding: 4px 8px; border: 1px solid rgba(59,130,246,0.3); border-radius: 6px; }
+
+/* ── SYNC INDICATOR ── */
+.sync-row { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text3); margin-bottom: 14px; }
+.sync-btn { font-size: 12px; color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 4px; }
+.sync-btn svg { width: 14px; height: 14px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinning { animation: spin 1s linear infinite; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo-mark">SS</div>
+    <div>
+      <div class="topbar-title">Sufi CRM</div>
+      <div class="topbar-sub" id="topbar-sub">Select agent to begin</div>
+    </div>
+  </div>
+  <div class="agent-badge" onclick="showAgentModal()">
+    <span id="agent-badge-text">Switch</span>
+  </div>
+</div>
+
+<!-- PAGES -->
+
+<!-- HOME / DASHBOARD -->
+<div class="page active" id="page-home">
+  <div id="home-setup" style="display:none">
+    <div class="setup-screen">
+      <div class="setup-icon">⚙️</div>
+      <div class="setup-title">Connect Google Sheets</div>
+      <div class="setup-sub">Paste your Google Apps Script Web App URL to connect this app to your CRM data.</div>
+      <div class="setup-card">
+        <div class="setup-step">Step 1</div>
+        <div class="setup-desc">In your Admin Google Sheet → Extensions → Apps Script → Deploy → New Deployment → Web App → Anyone → Deploy. Copy the Web App URL.</div>
+      </div>
+      <div class="setup-card">
+        <div class="setup-step">Step 2</div>
+        <div class="setup-desc">Paste the Web App URL below and tap Connect.</div>
+      </div>
+      <div class="form-group" style="width:100%;margin-top:8px">
+        <input class="form-input" id="setup-url" placeholder="https://script.google.com/macros/s/..." />
+      </div>
+      <button class="btn-primary" onclick="saveWebAppUrl()">Connect Sheets</button>
+      <button class="btn-secondary" onclick="loadDemoData()">Try with Demo Data</button>
+    </div>
+  </div>
+
+  <div id="home-dashboard">
+    <div class="sync-row">
+      <span id="last-sync-text">Tap sync to load data</span>
+      <div class="sync-btn" onclick="syncData()">
+        <svg id="sync-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 005.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 013.51 15"/></svg>
+        Sync now
+      </div>
+    </div>
+
+    <!-- Agent selector -->
+    <div class="agent-selector" id="agent-selector">
+      <div class="agent-btn" style="--agent-color:#3b82f6" data-agent="Shabbir" onclick="selectAgent('Shabbir','#3b82f6')">
+        <div class="agent-btn-name">Shabbir</div>
+        <div class="agent-btn-count" id="count-Shabbir">— clients</div>
+      </div>
+      <div class="agent-btn" style="--agent-color:#10b981" data-agent="Rayyan" onclick="selectAgent('Rayyan','#10b981')">
+        <div class="agent-btn-name">Rayyan</div>
+        <div class="agent-btn-count" id="count-Rayyan">— clients</div>
+      </div>
+      <div class="agent-btn" style="--agent-color:#8b5cf6" data-agent="Mubin" onclick="selectAgent('Mubin','#8b5cf6')">
+        <div class="agent-btn-name">Mubin</div>
+        <div class="agent-btn-count" id="count-Mubin">— clients</div>
+      </div>
+      <div class="agent-btn" style="--agent-color:#f97316" data-agent="Rayyan IM" onclick="selectAgent('Rayyan IM','#f97316')">
+        <div class="agent-btn-name">Rayyan IM</div>
+        <div class="agent-btn-count" id="count-RayyanIM">— clients</div>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card" style="--accent-color: var(--accent)">
+        <div class="kpi-label">My Clients</div>
+        <div class="kpi-value" id="kpi-clients">—</div>
+        <div class="kpi-sub">total assigned</div>
+      </div>
+      <div class="kpi-card" style="--accent-color: var(--amber)">
+        <div class="kpi-label">Follow-ups Due</div>
+        <div class="kpi-value" id="kpi-followups">—</div>
+        <div class="kpi-sub">today & overdue</div>
+      </div>
+      <div class="kpi-card" style="--accent-color: var(--green)">
+        <div class="kpi-label">Quotes Won</div>
+        <div class="kpi-value" id="kpi-won">—</div>
+        <div class="kpi-sub" id="kpi-conversion">— conversion</div>
+      </div>
+      <div class="kpi-card" style="--accent-color: var(--red)">
+        <div class="kpi-label">Overdue ₹</div>
+        <div class="kpi-value" id="kpi-overdue">—</div>
+        <div class="kpi-sub">receivables</div>
+      </div>
+    </div>
+
+    <!-- Overdue follow-ups -->
+    <div class="section-header">
+      <span class="section-title">🔴 Overdue Follow-ups</span>
+      <span class="section-action" onclick="showPage('clients')">See all</span>
+    </div>
+    <div id="overdue-list"><div class="empty-state"><div class="empty-state-icon">✅</div><div class="empty-state-text">No overdue follow-ups</div></div></div>
+
+    <!-- Recent quotes -->
+    <div class="section-header">
+      <span class="section-title">Recent Quotations</span>
+      <span class="section-action" onclick="showPage('quotes')">See all</span>
+    </div>
+    <div id="recent-quotes-list"><div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">No quotations yet</div></div></div>
+  </div>
+</div>
+
+<!-- CLIENTS PAGE -->
+<div class="page" id="page-clients">
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="search" placeholder="Search clients…" id="client-search" oninput="filterClients()">
+  </div>
+  <div id="clients-list"></div>
+</div>
+
+<!-- QUOTES PAGE -->
+<div class="page" id="page-quotes">
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="search" placeholder="Search quotations…" id="quote-search" oninput="filterQuotes()">
+  </div>
+  <div id="quotes-list"></div>
+</div>
+
+<!-- RECEIVABLES PAGE -->
+<div class="page" id="page-receivables">
+  <div class="section-header" style="margin-top:0">
+    <span class="section-title">Outstanding</span>
+    <span class="kpi-value" id="rec-total" style="font-size:16px;color:var(--red)">—</span>
+  </div>
+  <div id="receivables-list"></div>
+</div>
+
+<!-- ITEMS PAGE -->
+<div class="page" id="page-items">
+  <div class="search-bar">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="search" placeholder="Search 241 items…" id="item-search" oninput="filterItems()">
+  </div>
+  <div id="items-list"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="showPage('home')" id="nav-home">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    <span class="nav-label">Home</span>
+  </button>
+  <button class="nav-item" onclick="showPage('clients')" id="nav-clients">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    <span class="nav-label">Clients</span>
+  </button>
+  <button class="nav-item" onclick="showPage('quotes')" id="nav-quotes">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    <span class="nav-label">Quotes</span>
+  </button>
+  <button class="nav-item" onclick="showPage('receivables')" id="nav-receivables">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+    <span class="nav-label">Dues</span>
+  </button>
+  <button class="nav-item" onclick="showPage('items')" id="nav-items">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+    <span class="nav-label">Items</span>
+  </button>
+</nav>
+
+<!-- FAB -->
+<button class="fab" id="fab-btn" onclick="showAddModal()" title="Add new">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+</button>
+
+<!-- ADD QUOTATION MODAL -->
+<div class="modal-overlay" id="modal-add-quote">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">New Quotation</div>
+    <div class="modal-sub" id="add-quote-agent-sub">Adding for current agent</div>
+    <div class="form-group">
+      <label class="form-label">Client Name</label>
+      <input class="form-input" id="q-client" placeholder="Search or type client name" list="client-datalist">
+      <datalist id="client-datalist"></datalist>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Item(s)</label>
+      <input class="form-input" id="q-items" placeholder="e.g. MS Angle 72162100" list="item-datalist">
+      <datalist id="item-datalist"></datalist>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Quantity</label>
+        <input class="form-input" id="q-qty" type="number" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Unit</label>
+        <select class="form-select" id="q-unit">
+          <option>Kg</option><option>Nos</option><option>Mtr</option><option>Sqft</option><option>Ft</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Rate (₹)</label>
+        <input class="form-input" id="q-rate" type="number" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Value (₹)</label>
+        <input class="form-input" id="q-value" placeholder="Auto" readonly>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <select class="form-select" id="q-status">
+        <option>Draft</option><option>Sent</option><option>Pending</option><option>Won</option><option>Lost</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Remarks</label>
+      <textarea class="form-textarea" id="q-remarks" placeholder="Notes…"></textarea>
+    </div>
+    <button class="btn-primary" onclick="submitQuotation()">Save Quotation</button>
+    <button class="btn-secondary" onclick="closeModal('modal-add-quote')">Cancel</button>
+  </div>
+</div>
+
+<!-- ADD FOLLOW-UP MODAL -->
+<div class="modal-overlay" id="modal-add-followup">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Update Follow-up</div>
+    <div class="modal-sub" id="followup-client-name">—</div>
+    <div class="form-group">
+      <label class="form-label">Follow-up Date</label>
+      <input class="form-input" id="fu-date" type="date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <select class="form-select" id="fu-status">
+        <option>Pending</option><option>Contacted</option><option>Demo Done</option>
+        <option>Quotation Sent</option><option>Negotiating</option>
+        <option>Won</option><option>Lost</option><option>On Hold</option><option>Not Interested</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Priority</label>
+      <select class="form-select" id="fu-priority">
+        <option>High</option><option>Medium</option><option>Low</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Remarks</label>
+      <textarea class="form-textarea" id="fu-remarks" placeholder="What happened in this interaction?"></textarea>
+    </div>
+    <button class="btn-primary" onclick="submitFollowUp()">Save Update</button>
+    <button class="btn-secondary" onclick="closeModal('modal-add-followup')">Cancel</button>
+  </div>
+</div>
+
+<!-- CONNECT SHEETS MODAL -->
+<div class="modal-overlay" id="modal-connect">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🔗 Connect Google Sheets</div>
+    <div class="modal-sub">Paste your Apps Script Web App URL to sync live data</div>
+    <div class="setup-card">
+      <div class="setup-step">How to get the URL</div>
+      <div class="setup-desc">Admin Google Sheet → Extensions → Apps Script → Deploy → New Deployment → Web App → Anyone → Deploy → Copy URL</div>
+    </div>
+    <div class="form-group" style="margin-top:14px">
+      <label class="form-label">Web App URL</label>
+      <input class="form-input" id="connect-url" placeholder="https://script.google.com/macros/s/..." style="font-size:12px">
+    </div>
+    <button class="btn-primary" onclick="saveConnectUrl()">Connect & Sync</button>
+    <button class="btn-secondary" onclick="closeModal('modal-connect')">Cancel</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────
+
+// ── AGENT LOCK: This page is for Rayyan only ──────────
+const LOCKED_AGENT = 'Rayyan';
+const LOCKED_COLOR = '#059669';
+// ── Auto-detect agent from URL parameter (?agent=Rayyan)
+const URL_PARAMS  = new URLSearchParams(window.location.search);
+const URL_AGENT   = URL_PARAMS.get('agent') || '';
+const URL_LOCKED  = !!URL_AGENT; // if agent in URL, lock to that agent
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbw_AMlH-V8QTUc5peeCTKfxgYx1gyv10y4wP6JLuZfcPe5bPPao1zD278B1V4brfLKb2w/exec';
+
+const STATE = {
+  agent: 'Rayyan',
+  agentColor: '#059669',
+  webAppUrl: WEB_APP_URL,
+  clients: JSON.parse(localStorage.getItem('sufi_clients') || '[]'),
+  quotes:  JSON.parse(localStorage.getItem('sufi_quotes')  || '[]'),
+  receivables: JSON.parse(localStorage.getItem('sufi_receivables') || '[]'),
+  items: JSON.parse(localStorage.getItem('sufi_items') || '[]'),
+  lastSync: localStorage.getItem('sufi_last_sync') || null,
+  selectedClient: null,
+  currentPage: 'home',
+};
+
+// ── DEMO DATA ──────────────────────────────────────────────
+function loadDemoData() {
+  STATE.agent = 'Rayyan';
+  STATE.agentColor = '#10b981';
+  STATE.clients = [
+    { name:'Truetech Vision Industry', contact:'Rahul M', phone:'9876543210', email:'rahul@truetech.in', lastSale:'2026-06-04', followUp:'2026-06-08', priority:'High', status:'Quotation Sent', quoteRef:'Q001', remarks:'Big order pipeline' },
+    { name:'Impact Infraheights Pvt Ltd', contact:'Ramesh K', phone:'9123456789', email:'purchase@impact.in', lastSale:'2026-05-19', followUp:'2026-06-05', priority:'High', status:'Pending', quoteRef:'Q002', remarks:'Awaiting approval' },
+    { name:'Alfa Facade Systems', contact:'Priya S', phone:'9000001111', email:'priya@alfafacade.in', lastSale:'2026-06-02', followUp:'2026-06-10', priority:'Medium', status:'Contacted', quoteRef:'', remarks:'New project inquiry' },
+    { name:'Jeevan Hi-Tech Industries', contact:'Suresh N', phone:'9555566677', email:'suresh@jeevan.in', lastSale:'2026-05-08', followUp:'2026-06-07', priority:'Medium', status:'Contacted', quoteRef:'', remarks:'' },
+    { name:'Reality Infracon', contact:'Vijay P', phone:'9311122233', email:'vijay@reality.in', lastSale:'2026-06-03', followUp:'2026-06-10', priority:'Low', status:'Contacted', quoteRef:'', remarks:'New project inquiry' },
+    { name:'Kotkar Glazing Solution', contact:'Amit R', phone:'9444455566', email:'amit@kotkar.in', lastSale:'2025-05-23', followUp:'2026-06-02', priority:'High', status:'Lost', quoteRef:'', remarks:'Went with competitor' },
+    { name:'Morg Multiparking Pvt Ltd', contact:'Deepa J', phone:'9777788899', email:'deepa@morg.in', lastSale:'2026-05-30', followUp:'2026-06-15', priority:'Medium', status:'Won', quoteRef:'Q003', remarks:'Order confirmed ✅' },
+    { name:'OREE Reality Private Ltd', contact:'Kiran B', phone:'9222233344', email:'kiran@oree.in', lastSale:'2026-06-04', followUp:'2026-06-09', priority:'Medium', status:'Pending', quoteRef:'', remarks:'' },
+  ];
+  STATE.quotes = [
+    { id:'Q001', date:'2026-06-04', client:'Truetech Vision Industry', items:'MS Angle 72162100', qty:5000, unit:'Kg', rate:90, value:450000, status:'Won', followUp:'2026-06-10', ref:'SUFI/26-27/261', remarks:'Delivered' },
+    { id:'Q002', date:'2026-06-03', client:'Impact Infraheights Pvt Ltd', items:'Colour Coated Sheets', qty:3000, unit:'Nos', rate:70, value:210000, status:'Pending', followUp:'2026-06-08', ref:'', remarks:'Awaiting approval' },
+    { id:'Q003', date:'2026-06-01', client:'Morg Multiparking Pvt Ltd', items:'ERW Pipes 73069011', qty:8000, unit:'Kg', rate:75, value:600000, status:'Won', followUp:'', ref:'SUFI/26-27/232', remarks:'Paid' },
+    { id:'Q004', date:'2026-05-28', client:'OREE Reality Private Ltd', items:'MS Flat 72111900', qty:2000, unit:'Kg', rate:65, value:130000, status:'Draft', followUp:'2026-06-09', ref:'', remarks:'' },
+  ];
+  STATE.receivables = [
+    { client:'Truetech Vision Industry', amount:9282482, dueDate:'2026-08-03', overdue:0, risk:'Medium', agent:'Rayyan', ref:'SUFI/26-27/261' },
+    { client:'Impact Infraheights Pvt Ltd', amount:533762, dueDate:'2026-07-04', overdue:0, risk:'Low', agent:'Rayyan', ref:'SUFI/26-27/264' },
+    { client:'Kotkar Glazing Solution', amount:317935, dueDate:'2025-06-02', overdue:367, risk:'Critical', agent:'Rayyan', ref:'SUFI/25-26/258' },
+    { client:'Kansara Enterprises', amount:78413, dueDate:'2026-05-06', overdue:29, risk:'Medium', agent:'Rayyan', ref:'SUFI/26-27/51' },
+    { client:'Skyline Technology', amount:431090, dueDate:'2026-07-01', overdue:0, risk:'Low', agent:'Rayyan', ref:'SUFI/26-27/240' },
+  ];
+  STATE.items = [
+    'MS Angle 72162100','MS Channel 72163100','MS Beam 72163200','MS Flat 72111900',
+    'ERW Pipes 73069011','MS Square Pipes 73063090','MS Rectangular Pipes 73063090',
+    'GP/GI Sheet 72104900','Colour Coated Sheets 72107000','HR Sheet 72082700',
+    'CR Sheet 72091800','Chequered Plate 72085190','MS Round Bar 72142000',
+    'MS Square Bar 72142000','Stainless Steel Sheet 72193300','Aluminium Sheet 76061290',
+  ].map(i => ({ name: i, unit: i.includes('Sheet') || i.includes('Plate') ? 'Nos' : 'Kg', lastSale: '2026-06-01' }));
+
+  saveState();
+  initApp();
+  showToast('✅ Demo data loaded!');
+}
+
+function saveState() {
+  localStorage.setItem('sufi_agent', STATE.agent || '');
+  localStorage.setItem('sufi_agent_color', STATE.agentColor);
+  localStorage.setItem('sufi_clients', JSON.stringify(STATE.clients));
+  localStorage.setItem('sufi_quotes', JSON.stringify(STATE.quotes));
+  localStorage.setItem('sufi_receivables', JSON.stringify(STATE.receivables));
+  localStorage.setItem('sufi_items', JSON.stringify(STATE.items));
+  if (STATE.webAppUrl) localStorage.setItem('sufi_webapp_url', STATE.webAppUrl);
+}
+
+// ── NAVIGATION ─────────────────────────────────────────────
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  document.getElementById(`nav-${page}`)?.classList.add('active');
+  STATE.currentPage = page;
+  // Update FAB visibility
+  const fab = document.getElementById('fab-btn');
+  fab.style.display = (page === 'quotes' || page === 'clients') ? 'flex' : 'none';
+  renderPage(page);
+}
+
+function renderPage(page) {
+  if (page === 'home')        renderDashboard();
+  if (page === 'clients')     renderClients();
+  if (page === 'quotes')      renderQuotes();
+  if (page === 'receivables') renderReceivables();
+  if (page === 'items')       renderItems();
+}
+
+// ── INIT ───────────────────────────────────────────────────
+function initApp() {
+  // If agent locked via URL param, hide agent switcher
+  if (URL_LOCKED) {
+    const badge = document.getElementById('agent-badge-text');
+    if (badge) badge.parentElement.style.display = 'none';
+    // Hide agent selector cards
+    const sel = document.getElementById('agent-selector');
+    if (sel) sel.style.display = 'none';
+  }
+
+  updateTopBar();
+  // Always show dashboard (URL is embedded)
+  document.getElementById('home-setup').style.display = 'none';
+  document.getElementById('home-dashboard').style.display = 'block';
+
+  if (STATE.clients.length === 0) {
+    // Auto-sync on first load
+    syncData();
+  } else {
+    renderDashboard();
+  }
+  // Set today as default follow-up date
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('fu-date').value = today;
+  // Auto-calculate quotation value
+  ['q-qty','q-rate'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      const qty  = parseFloat(document.getElementById('q-qty').value) || 0;
+      const rate = parseFloat(document.getElementById('q-rate').value) || 0;
+      document.getElementById('q-value').value = qty && rate ? `₹${(qty*rate).toLocaleString('en-IN')}` : '';
+    });
+  });
+  // Populate item datalist
+  populateDataLists();
+  showPage('home');
+}
+
+function updateTopBar() {
+  document.getElementById('topbar-sub').textContent = STATE.agent ? `${STATE.agent}'s Dashboard` : 'Select agent';
+  if (URL_LOCKED && STATE.agent) {
+    document.getElementById('topbar-sub').textContent = `${STATE.agent} — Sufi Structural Tubes`;
+  }
+  document.getElementById('agent-badge-text').textContent = STATE.agent || 'Select';
+  // Highlight selected agent
+  document.querySelectorAll('.agent-btn').forEach(btn => {
+    btn.classList.toggle('selected', btn.dataset.agent === STATE.agent);
+  });
+}
+
+function selectAgent(name, color) {
+  STATE.agent = name;
+  STATE.agentColor = color;
+  saveState();
+  updateTopBar();
+  renderDashboard();
+  document.getElementById('add-quote-agent-sub').textContent = `Adding quotation for ${name}`;
+}
+
+// ── DASHBOARD ──────────────────────────────────────────────
+function renderDashboard() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const myClients = STATE.agent
+    ? STATE.clients
+    : STATE.clients;
+
+  const overdueClients = myClients.filter(c => {
+    if (!c.followUp) return false;
+    const fu = new Date(c.followUp); fu.setHours(0,0,0,0);
+    return fu <= today && !['Won','Lost','Not Interested'].includes(c.status);
+  });
+
+  const myQuotes = STATE.agent
+    ? STATE.quotes.filter(q => !STATE.agent || true)
+    : STATE.quotes;
+
+  const wonQuotes = myQuotes.filter(q => q.status === 'Won');
+  const conv = myQuotes.length ? Math.round(wonQuotes.length / myQuotes.length * 100) : 0;
+
+  const myRec = STATE.receivables;
+  const totalRec = myRec.reduce((s,r) => s + r.amount, 0);
+
+  // Update agent counts
+  document.getElementById('count-Shabbir').textContent = `${STATE.clients.length} clients`;
+  document.getElementById('count-Rayyan').textContent  = `${STATE.clients.length} clients`;
+  document.getElementById('count-Mubin').textContent   = `${STATE.clients.length} clients`;
+  document.getElementById('count-RayyanIM').textContent= `${STATE.clients.length} clients`;
+
+  document.getElementById('kpi-clients').textContent   = myClients.length;
+  document.getElementById('kpi-followups').textContent = overdueClients.length;
+  document.getElementById('kpi-won').textContent       = wonQuotes.length;
+  document.getElementById('kpi-conversion').textContent= `${conv}% conversion`;
+  document.getElementById('kpi-overdue').textContent   = totalRec > 0 ? `₹${(totalRec/100000).toFixed(1)}L` : '₹0';
+
+  // Overdue list
+  const ol = document.getElementById('overdue-list');
+  if (overdueClients.length === 0) {
+    ol.innerHTML = '<div class="empty-state"><div class="empty-state-icon">✅</div><div class="empty-state-text">No overdue follow-ups</div></div>';
+  } else {
+    ol.innerHTML = overdueClients.slice(0,5).map(c => {
+      const fu = new Date(c.followUp); fu.setHours(0,0,0,0);
+      const days = Math.round((today - fu) / 86400000);
+      return `<div class="card" onclick="openFollowUpModal(${JSON.stringify(c).replace(/"/g,'&quot;')})">
+        <div class="card-top">
+          <div>
+            <div class="card-name">${c.name}</div>
+            <div class="card-company">${c.contact} · ${c.phone}</div>
+          </div>
+          <span class="tag tag-red">${days}d overdue</span>
+        </div>
+        <div class="card-meta">
+          <span class="tag tag-${priorityTag(c.priority)}">${c.priority}</span>
+          <span class="tag tag-gray">${c.status}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // Recent quotes
+  const rql = document.getElementById('recent-quotes-list');
+  if (myQuotes.length === 0) {
+    rql.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">No quotations yet</div></div>';
+  } else {
+    rql.innerHTML = myQuotes.slice(0,4).map(q => `
+      <div class="card">
+        <div class="card-top">
+          <div>
+            <div class="card-name">${q.client}</div>
+            <div class="card-company">${q.items}</div>
+          </div>
+          <span class="tag tag-${statusTag(q.status)}">${q.status}</span>
+        </div>
+        <div class="card-footer">
+          <span class="card-date">${q.date}</span>
+          <span class="card-amount">₹${Number(q.value).toLocaleString('en-IN')}</span>
+        </div>
+      </div>`).join('');
+  }
+
+  if (STATE.lastSync) {
+    document.getElementById('last-sync-text').textContent = 'Last synced: ' + new Date(STATE.lastSync).toLocaleTimeString('en-IN');
+  }
+}
+
+// ── CLIENTS ────────────────────────────────────────────────
+function renderClients(filter='') {
+  const today = new Date(); today.setHours(0,0,0,0);
+  let list = STATE.clients;
+  if (filter) list = list.filter(c =>
+    c.name.toLowerCase().includes(filter) ||
+    (c.contact||'').toLowerCase().includes(filter) ||
+    (c.phone||'').includes(filter)
+  );
+  const el = document.getElementById('clients-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔍</div><div class="empty-state-text">No clients found</div></div>';
+    return;
+  }
+  el.innerHTML = list.map((c,i) => {
+    const isOverdue = c.followUp && (() => {
+      const fu = new Date(c.followUp); fu.setHours(0,0,0,0);
+      return fu < today && !['Won','Lost'].includes(c.status);
+    })();
+    return `<div class="card" onclick="openFollowUpModal(${JSON.stringify(c).replace(/"/g,'&quot;')})">
+      <div class="card-top">
+        <div style="flex:1">
+          <div class="card-name">${c.name}</div>
+          <div class="card-company">${c.contact||'—'} · ${c.phone||'—'}</div>
+        </div>
+        <span class="tag tag-${statusTag(c.status)}">${c.status||'Pending'}</span>
+      </div>
+      <div class="card-meta">
+        ${c.priority ? `<span class="tag tag-${priorityTag(c.priority)}">${c.priority}</span>` : ''}
+        ${isOverdue ? '<span class="tag tag-red">⚠ Overdue</span>' : ''}
+        ${c.followUp ? `<span class="tag tag-gray">📅 ${c.followUp}</span>` : ''}
+      </div>
+      ${c.remarks ? `<div style="font-size:12px;color:var(--text3);margin-top:8px">${c.remarks}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function filterClients() {
+  renderClients(document.getElementById('client-search').value.toLowerCase());
+}
+
+// ── QUOTES ─────────────────────────────────────────────────
+function renderQuotes(filter='') {
+  let list = STATE.quotes;
+  if (filter) list = list.filter(q =>
+    q.client.toLowerCase().includes(filter) ||
+    (q.items||'').toLowerCase().includes(filter)
+  );
+  const el = document.getElementById('quotes-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">No quotations yet. Tap + to add.</div></div>';
+    return;
+  }
+  el.innerHTML = list.map(q => `
+    <div class="card">
+      <div class="card-top">
+        <div style="flex:1">
+          <div class="card-name">${q.client}</div>
+          <div class="card-company">${q.items}</div>
+        </div>
+        <span class="tag tag-${statusTag(q.status)}">${q.status}</span>
+      </div>
+      <div class="card-meta">
+        <span class="tag tag-gray">${q.qty} ${q.unit}</span>
+        ${q.ref ? `<span class="tag tag-blue">${q.ref}</span>` : ''}
+      </div>
+      <div class="card-footer">
+        <span class="card-date">${q.date}</span>
+        <span class="card-amount">₹${Number(q.value).toLocaleString('en-IN')}</span>
+      </div>
+    </div>`).join('');
+}
+
+function filterQuotes() {
+  renderQuotes(document.getElementById('quote-search').value.toLowerCase());
+}
+
+// ── RECEIVABLES ────────────────────────────────────────────
+function renderReceivables() {
+  const list = STATE.receivables;
+  const total = list.reduce((s,r) => s + r.amount, 0);
+  document.getElementById('rec-total').textContent = `₹${(total/100000).toFixed(1)}L`;
+
+  const el = document.getElementById('receivables-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">💰</div><div class="empty-state-text">No receivables data</div></div>';
+    return;
+  }
+  el.innerHTML = list.map(r => `
+    <div class="rec-card">
+      <div class="rec-top">
+        <div class="rec-name">${r.client}</div>
+        <div class="rec-amount ${r.risk.toLowerCase()}">₹${Number(r.amount).toLocaleString('en-IN')}</div>
+      </div>
+      <div class="card-meta" style="margin-bottom:8px">
+        <span class="tag tag-${riskTag(r.risk)}">${r.risk}</span>
+        ${r.overdue > 0 ? `<span class="tag tag-red">${r.overdue}d overdue</span>` : '<span class="tag tag-green">Not due</span>'}
+      </div>
+      <div class="rec-meta">
+        <span>Due: ${r.dueDate}</span>
+        <span>${r.ref}</span>
+      </div>
+    </div>`).join('');
+}
+
+// ── ITEMS ──────────────────────────────────────────────────
+function renderItems(filter='') {
+  let list = STATE.items;
+  if (filter) list = list.filter(i => i.name.toLowerCase().includes(filter));
+  const el = document.getElementById('items-list');
+  if (!list.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📦</div><div class="empty-state-text">No items found</div></div>';
+    return;
+  }
+  el.innerHTML = list.map(item => `
+    <div class="item-card" onclick="copyItem('${item.name.replace(/'/g,"\\'")}')">
+      <div class="item-name">${item.name}</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="item-unit">${item.unit}</span>
+        <span class="item-copy">Copy</span>
+      </div>
+    </div>`).join('');
+}
+
+function filterItems() {
+  renderItems(document.getElementById('item-search').value.toLowerCase());
+}
+
+function copyItem(name) {
+  navigator.clipboard?.writeText(name).catch(()=>{});
+  // Also paste into quote modal if open
+  const qItems = document.getElementById('q-items');
+  if (qItems) qItems.value = name;
+  showToast(`📋 Copied: ${name}`);
+}
+
+// ── MODALS ─────────────────────────────────────────────────
+function showAddModal() {
+  if (STATE.currentPage === 'quotes' || STATE.currentPage === 'home') {
+    document.getElementById('modal-add-quote').classList.add('open');
+    document.getElementById('add-quote-agent-sub').textContent = `Adding for ${STATE.agent || 'all agents'}`;
+  } else if (STATE.currentPage === 'clients') {
+    document.getElementById('modal-add-quote').classList.add('open');
+  }
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function openFollowUpModal(client) {
+  if (typeof client === 'string') client = JSON.parse(client);
+  STATE.selectedClient = client;
+  document.getElementById('followup-client-name').textContent = client.name;
+  document.getElementById('fu-status').value   = client.status || 'Pending';
+  document.getElementById('fu-priority').value = client.priority || 'Medium';
+  document.getElementById('fu-remarks').value  = client.remarks || '';
+  document.getElementById('fu-date').value     = client.followUp || new Date().toISOString().split('T')[0];
+  document.getElementById('modal-add-followup').classList.add('open');
+}
+
+function submitFollowUp() {
+  const client = STATE.selectedClient;
+  if (!client) return;
+  const idx = STATE.clients.findIndex(c => c.name === client.name);
+  if (idx >= 0) {
+    STATE.clients[idx].followUp = document.getElementById('fu-date').value;
+    STATE.clients[idx].status   = document.getElementById('fu-status').value;
+    STATE.clients[idx].priority = document.getElementById('fu-priority').value;
+    STATE.clients[idx].remarks  = document.getElementById('fu-remarks').value;
+    saveState();
+    // Push to Google Sheets if connected
+    pushToSheets('followup', STATE.clients[idx]);
+  }
+  closeModal('modal-add-followup');
+  renderPage(STATE.currentPage);
+  showToast('✅ Follow-up updated!');
+}
+
+function submitQuotation() {
+  const client = document.getElementById('q-client').value.trim();
+  const items  = document.getElementById('q-items').value.trim();
+  const qty    = parseFloat(document.getElementById('q-qty').value) || 0;
+  const unit   = document.getElementById('q-unit').value;
+  const rate   = parseFloat(document.getElementById('q-rate').value) || 0;
+  const status = document.getElementById('q-status').value;
+  const remarks= document.getElementById('q-remarks').value;
+
+  if (!client || !items) { showToast('⚠ Client and Items are required'); return; }
+
+  const quote = {
+    id: 'Q' + String(STATE.quotes.length + 1).padStart(3,'0'),
+    date: new Date().toISOString().split('T')[0],
+    client, items, qty, unit, rate,
+    value: qty * rate,
+    status, remarks,
+    agent: STATE.agent || '',
+    ref: '',
+  };
+  STATE.quotes.unshift(quote);
+  saveState();
+  pushToSheets('quotation', quote);
+
+  // Clear form
+  ['q-client','q-items','q-qty','q-rate','q-value','q-remarks'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  closeModal('modal-add-quote');
+  renderPage(STATE.currentPage);
+  showToast('✅ Quotation saved!');
+}
+
+// ── GOOGLE SHEETS SYNC ─────────────────────────────────────
+function saveWebAppUrl() {
+  const url = document.getElementById('setup-url').value.trim();
+  if (!url || !url.includes('script.google.com')) {
+    showToast('⚠ Invalid URL — paste the Apps Script Web App URL'); return;
+  }
+  STATE.webAppUrl = url;
+  localStorage.setItem('sufi_webapp_url', url);
+  document.getElementById('home-setup').style.display = 'none';
+  document.getElementById('home-dashboard').style.display = 'block';
+  showToast('✅ Connected! Syncing…');
+  syncData();
+}
+
+async function syncData() {
+  STATE.webAppUrl = WEB_APP_URL; // always use embedded URL
+  const icon = document.getElementById('sync-icon');
+  icon.classList.add('spinning');
+  document.getElementById('last-sync-text').textContent = 'Syncing…';
+  syncViaJsonp();
+}
+
+function syncViaJsonp() {
+  const icon = document.getElementById('sync-icon');
+  const callbackName = 'sufiCB' + Date.now();
+  // Build the exec URL (not the /dev URL)
+  let baseUrl = STATE.webAppUrl.split('?')[0];
+  if (!baseUrl.endsWith('/exec')) {
+    baseUrl = baseUrl.replace(/\/dev$/, '/exec');
+  }
+  const url = baseUrl + '?action=getData&agent=' + encodeURIComponent(STATE.agent||'') + '&callback=' + callbackName;
+
+  let done = false;
+
+  window[callbackName] = function(data) {
+    done = true;
+    if (data && data.clients !== undefined) {
+      STATE.clients     = data.clients     || [];
+      STATE.quotes      = data.quotes      || [];
+      STATE.receivables = data.receivables || [];
+      STATE.items       = data.items       || [];
+      STATE.lastSync    = new Date().toISOString();
+      saveState();
+      populateDataLists();
+      renderPage(STATE.currentPage);
+      document.getElementById('last-sync-text').textContent = 'Synced: ' + new Date().toLocaleTimeString('en-IN');
+      showToast('✅ Synced! ' + STATE.clients.length + ' clients loaded.');
+    } else {
+      document.getElementById('last-sync-text').textContent = 'Sync failed';
+      showToast('❌ No data returned. Redeploy Web App as new version.');
+    }
+    icon.classList.remove('spinning');
+    delete window[callbackName];
+    if (script.parentNode) script.remove();
+  };
+
+  const script = document.createElement('script');
+  script.src = url;
+  script.onerror = function() {
+    if (done) return;
+    done = true;
+    icon.classList.remove('spinning');
+    document.getElementById('last-sync-text').textContent = 'Sync failed';
+    showToast('❌ Failed. Make sure Web App is deployed with "Anyone" access.');
+    delete window[callbackName];
+    if (script.parentNode) script.remove();
+  };
+  // Timeout after 15 seconds
+  setTimeout(() => {
+    if (!done) {
+      done = true;
+      icon.classList.remove('spinning');
+      document.getElementById('last-sync-text').textContent = 'Sync timed out';
+      showToast('❌ Timed out. Check Apps Script deployment.');
+      delete window[callbackName];
+      if (script.parentNode) script.remove();
+    }
+  }, 15000);
+
+  document.head.appendChild(script);
+}
+
+async function pushToSheets(type, data) {
+  if (!STATE.webAppUrl) return;
+  try {
+    await fetch(STATE.webAppUrl, {
+      method: 'POST',
+      body: JSON.stringify({ type, agent: STATE.agent, data }),
+    });
+  } catch(e) { /* silent fail — data already saved locally */ }
+}
+
+// ── CONNECT MODAL ──────────────────────────────────────────
+function showConnectModal() {
+  const existing = STATE.webAppUrl || '';
+  document.getElementById('connect-url').value = existing;
+  document.getElementById('modal-connect').classList.add('open');
+}
+
+function saveConnectUrl() {
+  // URL is now embedded — just sync directly
+  STATE.webAppUrl = WEB_APP_URL;
+  closeModal('modal-connect');
+  document.getElementById('home-setup').style.display = 'none';
+  document.getElementById('home-dashboard').style.display = 'block';
+  showToast('✅ Connecting…');
+  syncData();
+}
+
+// ── HELPERS ────────────────────────────────────────────────
+function showAgentModal() {
+  // Scroll to agent selector in dashboard
+  showPage('home');
+  document.getElementById('agent-selector').scrollIntoView({ behavior: 'smooth' });
+}
+
+function populateDataLists() {
+  const cd = document.getElementById('client-datalist');
+  cd.innerHTML = STATE.clients.map(c => `<option value="${c.name}">`).join('');
+  const id = document.getElementById('item-datalist');
+  id.innerHTML = STATE.items.map(i => `<option value="${i.name}">`).join('');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function priorityTag(p) {
+  return p === 'High' ? 'red' : p === 'Low' ? 'green' : 'amber';
+}
+
+function statusTag(s) {
+  if (s === 'Won') return 'green';
+  if (s === 'Lost') return 'red';
+  if (s === 'Quotation Sent' || s === 'Pending') return 'amber';
+  if (s === 'Negotiating') return 'purple';
+  return 'gray';
+}
+
+function riskTag(r) {
+  if (r === 'Critical') return 'red';
+  if (r === 'High')     return 'amber';
+  if (r === 'Medium')   return 'blue';
+  return 'green';
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// Init
+initApp();
+</script>
+</body>
+</html>
